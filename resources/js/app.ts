@@ -1,10 +1,4 @@
-// import axios from 'axios';
-// import Alpine from 'alpinejs';
-
 import { Toast } from "bootstrap";
-
-// window.Alpine = Alpine;
-// Alpine.start();
 
 export const NoticeType = {
     Success: 0,

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PhotoGroup;
 use App\Repositories\PhotoGroupRepository;
 use App\Repositories\PhotoRepository;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class MapController extends Controller
 {
@@ -23,14 +23,34 @@ class MapController extends Controller
     public function index($id)
     {
         $userId = Auth::id();
-        $photoGroup = $this->photoGroupRepository->findById($id);
+        $photoGroup = $this->photoGroupRepository->findByIdIfStatusIsSuccess($id);
+        // $photoGroup = $this->photoGroupRepository->findByIdIfStatusIsSuccess($id, $userId);
 
         if (!$photoGroup) {
-            return redirect()->back()->with('error', '指定された画像グループが見つかりません.');
+            return redirect()->back()->with('error', '紐づけ済の指定された画像グループが見つかりません.');
         }
 
-        $photos = $photoGroup->photos;
+        return view('map');
+    }
 
-        return view('map.index', ['photos' => $photos]);
+    public function getPhotosJson($id)
+    {
+        $userId = Auth::id();
+        $photos = $this->photoRepository->findByPhotoGroupIdWithLocations($id)
+        // $photos = $this->photoRepository->findByPhotoGroupIdWithLocations($id, $userId)
+            ->map(function ($photo) {
+                $photoUrl = Storage::disk('s3f')->temporaryUrl($photo->storage_dir . '/' . $photo->original_name, now()->addHour());
+                $photoThumbNailUrl = Storage::disk('s3f')->temporaryUrl($photo->thumbnail_dir . '/' . $photo->original_name, now()->addHour());
+
+                $search = 'http://minio:9000';
+                $replace = 'http://106.73.27.0:50804';
+                $photoUrl = str_replace($search, $replace, $photoUrl);
+                $photoThumbNailUrl = str_replace($search, $replace, $photoThumbNailUrl);
+                $photo->url = $photoUrl;
+                $photo->thumbnail_url = $photoThumbNailUrl;
+                return $photo;
+            });
+
+        return response()->json($photos);
     }
 }

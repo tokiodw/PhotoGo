@@ -1,5 +1,6 @@
 @php
     use App\Enums\StatusType;
+    // phpinfo();
 @endphp
 
 <x-app-layout>
@@ -40,7 +41,7 @@
                             <tr class="">
                                 <td scope="row">
                                     @if ( $group->status_type === StatusType::SUCCESS->value)
-                                        <button class="btn btn-sm btn-outline-dark">開く</button>
+                                        <a href="{{ route('map.index', ['id' => $group->id]) }}" class="btn btn-sm btn-outline-dark">開く</a>
                                     @endif
                                 </td>
                                 <td scope="row">{{ $group->group_name }}</td>

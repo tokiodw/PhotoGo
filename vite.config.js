@@ -8,9 +8,11 @@ export default defineConfig({
                 "resources/js/app.ts",
                 "resources/css/app.css",
                 "resources/sass/app.scss",
-                "resources/js/app.jsx",
                 "resources/js/bootstrap.js",
                 "resources/js/home.ts",
+                "resources/js/map.ts",
+                "resources/sass/map.scss",
+                "resources/images/logo.png",
             ],
             refresh: true,
         }),
@@ -21,4 +23,8 @@ export default defineConfig({
             host: "tokioubnt",
         },
     },
+    // build: {
+    //     assetsDir: 'assets',
+    //     manifest: true,
+    // }
 });

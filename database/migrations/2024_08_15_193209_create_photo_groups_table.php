@@ -17,6 +17,8 @@ return new class extends Migration
             $table->char('group_type', 1);
             $table->string('file_name');
             $table->string('group_name');
+            $table->bigInteger('photo_count');
+            $table->bigInteger('non_photo_count');
             $table->timestamps();
         });
     }

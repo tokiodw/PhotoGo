@@ -21,6 +21,11 @@
                         placeholder="Password" required autocomplete="new-password"/>
                     <label for="inputPassword">パスワード</label>
                 </div>
+                <div class="form-floating mb-3 mx-3">
+                    <input class="form-control" id="inputConfirmPassword" type="password" name="password_confirmation"
+                        placeholder="Password" required autocomplete="new-password"/>
+                    <label for="inputConfirmPassword">パスワード(確認用)</label>
+                </div>
                 <div class="d-flex align-items-center justify-content-end mt-4 mb-0 me-3">
                     <button class="btn btn-primary" type="submit">作成</a>
                 </div>

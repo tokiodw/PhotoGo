@@ -1,0 +1,105 @@
+.photo-marker {
+    cursor: pointer;
+    background-color: #ffffff;
+    border-radius: 8px;
+    color: #000000;
+    font-size: 14px;
+    padding: 5px;
+    position: relative;
+    transform: translateY(-8%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 影を追加して立体感を演出 */
+    z-index: 1000;
+}
+
+.photo-marker img {
+    cursor: pointer;
+    object-fit: cover; /* 画像のアスペクト比を保ちながら、コンテナに収める */
+}
+
+.photo-marker::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, 0);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #ffffff;
+}
+
+.photo-marker:hover {
+    z-index: 10000;
+}
+
+[class$=api-load-alpha-banner] {
+    display: none;
+}
+
+.modal-dialog {
+    transition: width 0.5s ease;
+    max-width: 65vw;
+    width: fit-content;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-dialog.modal-dialog-centered {
+    max-width: 65vw;
+    width: fit-content;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalImage {
+    max-width: 100%;
+    max-height: calc(100vh - 200px);
+    height: auto;
+    width: auto;
+    display: block;
+    margin: 0 auto;
+    object-fit: cover;
+}
+
+
+.custom-cluster {
+    cursor: pointer;
+    background-color: #b1c3ce;
+    width: 230px;
+    height: 180px;
+    border-radius: 8px;
+    color: #000000;
+    font-size: 14px;
+    padding: 5px;
+    position: relative;
+    transform: translateY(-8%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* 影を追加して立体感を演出 */
+    z-index: 1000;
+}
+
+.custom-cluster img {
+    cursor: pointer;
+    object-fit: cover; /* 画像のアスペクト比を保ちながら、コンテナに収める */
+    border: 1px solid #b1c3ce50; /* 枠線の追加 */
+    border-radius: 4px; /* 枠線の角を丸める場合 */
+}
+
+.custom-cluster::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, 0);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #b1c3ce;
+}

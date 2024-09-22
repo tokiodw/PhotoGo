@@ -37,7 +37,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $photoGroups = $this->photoGroupRepository->getAllWithLastStatuses();
+        $userId = Auth::id();
+
+        $photoGroups = $this->photoGroupRepository->getAllWithLastStatuses($userId);
         return view('home', ['photoGroups' => $photoGroups]);
     }
 
@@ -46,6 +48,8 @@ class HomeController extends Controller
         // ユーザIDを取得
         $userId = Auth::id();
 
+        Log::debug($request);
+     
         // バリデーション
         $request->validate([
             'photoGroupName' => 'required|string|max:255',

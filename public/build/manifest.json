@@ -1,0 +1,106 @@
+{
+  "_axios-BimPEqV4.js": {
+    "file": "assets/axios-BimPEqV4.js",
+    "name": "axios"
+  },
+  "_bootstrap.esm-D_59DZ1Y.js": {
+    "file": "assets/bootstrap.esm-D_59DZ1Y.js",
+    "name": "bootstrap.esm"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.ttf": {
+    "file": "assets/fa-brands-400-Dur5g48u.ttf",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.ttf"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2": {
+    "file": "assets/fa-brands-400-O7nZalfM.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.ttf": {
+    "file": "assets/fa-regular-400-Bf3rG5Nx.ttf",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.ttf"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2": {
+    "file": "assets/fa-regular-400-DgEfZSYE.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf": {
+    "file": "assets/fa-solid-900-BV3CbEM2.ttf",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2": {
+    "file": "assets/fa-solid-900-DOQJEhcS.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.ttf": {
+    "file": "assets/fa-v4compatibility-B9MWI-E6.ttf",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.ttf"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2": {
+    "file": "assets/fa-v4compatibility-BX8XWJtE.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-FteslKC3.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/images/home.jpg": {
+    "file": "assets/home-CtPDRrXR.jpg",
+    "src": "resources/images/home.jpg"
+  },
+  "resources/images/logo.png": {
+    "file": "assets/logo-D9HUjIBq.png",
+    "src": "resources/images/logo.png"
+  },
+  "resources/js/app.ts": {
+    "file": "assets/app-PF3Kj-JA.js",
+    "name": "app",
+    "src": "resources/js/app.ts",
+    "isEntry": true,
+    "imports": [
+      "_bootstrap.esm-D_59DZ1Y.js"
+    ]
+  },
+  "resources/js/bootstrap.js": {
+    "file": "assets/bootstrap-DMSkDbtx.js",
+    "name": "bootstrap",
+    "src": "resources/js/bootstrap.js",
+    "isEntry": true,
+    "imports": [
+      "_bootstrap.esm-D_59DZ1Y.js",
+      "_axios-BimPEqV4.js"
+    ]
+  },
+  "resources/js/home.ts": {
+    "file": "assets/home-CxTms7r6.js",
+    "name": "home",
+    "src": "resources/js/home.ts",
+    "isEntry": true,
+    "imports": [
+      "_axios-BimPEqV4.js",
+      "_bootstrap.esm-D_59DZ1Y.js",
+      "resources/js/app.ts"
+    ]
+  },
+  "resources/js/map.ts": {
+    "file": "assets/map-CsUyAuAr.js",
+    "name": "map",
+    "src": "resources/js/map.ts",
+    "isEntry": true,
+    "imports": [
+      "_axios-BimPEqV4.js",
+      "resources/js/app.ts",
+      "_bootstrap.esm-D_59DZ1Y.js"
+    ]
+  },
+  "resources/sass/app.scss": {
+    "file": "assets/app-DzxHK4Dc.css",
+    "src": "resources/sass/app.scss",
+    "isEntry": true
+  },
+  "resources/sass/map.scss": {
+    "file": "assets/map-BWmLZs2C.css",
+    "src": "resources/sass/map.scss",
+    "isEntry": true
+  }
+}

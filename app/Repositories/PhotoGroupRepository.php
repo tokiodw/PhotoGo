@@ -25,9 +25,9 @@ class PhotoGroupRepository
         ]);
     }
 
-    public function getAllWithLastStatuses()
+    public function getAllWithLastStatuses($userId = null)
     {
-        return PhotoGroup::leftJoinSub(
+        $query = PhotoGroup::leftJoinSub(
             PhotoGroupStatus::select('photo_group_id', 'status_type', 'status')
                 ->whereIn(
                     'id',
@@ -38,8 +38,22 @@ class PhotoGroupRepository
             'photo_groups.id',
             'latest_status.photo_group_id'
         )
-            ->select('photo_groups.*', 'latest_status.status_type as status_type', 'latest_status.status as status')
-            ->orderBy('id', 'desc')
-            ->get();
+            ->select('photo_groups.*', 'latest_status.status_type as status_type', 'latest_status.status as status');
+
+        if ($userId) {
+            $query = $query->where('user_id', $userId);
+        }
+
+        return $query->orderBy('id', 'desc')->get();
+    }
+
+    public function findByIdIfStatusIsSuccess($id, $userId = null)
+    {
+        $query = $this->getAllWithLastStatuses()->where('id', $id);
+
+        if ($userId) {
+            $query =  $query->where('user_id', $userId);
+        }
+        return $query->first();
     }
 }

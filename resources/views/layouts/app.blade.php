@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,17 +9,15 @@
     @vite(['resources/js/bootstrap.js', 'resources/sass/app.scss', 'resources/js/app.ts'])
     {{ $scripts }}
 </head>
-<body>
+
+<body class="d-flex justify-content-center flex-column vh-100">
     {{ $components }}
-    <div class="vh-100">
-        <header>
-            <x-header></x-header>
-        </header>
-        <main class="d-flex justify-content-center">
-            <div class="flex-grow-1">
-                {{ $slot }}
-            </div>
-        </main>
-    </div>
+    <header>
+        <x-header></x-header>
+    </header>
+    <main class="flex-grow-1">
+        {{ $slot }}
+    </main>
 </body>
+
 </html>

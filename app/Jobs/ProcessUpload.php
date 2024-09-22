@@ -17,6 +17,9 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+
 use ZipArchive;
 
 class ProcessUpload implements ShouldQueue
@@ -37,8 +40,11 @@ class ProcessUpload implements ShouldQueue
     protected const PHOTO_EXTENSIONS = ['jpg', 'jpeg', 'png'];
     protected const TEMP_DIR = 'temp/extracted/';
     protected const UPLOAD_PHOTO_DIR = 'uploads/photo/';
+    protected const UPLOAD_THUMBNAIL_DIR = 'uploads/photo/thumbnails/';
     protected const UPLOAD_GPX_DIR = 'uploads/gpx/';
     protected const MAX_ALLOWED_DIFF = '300';
+    protected const ORIGINAL_MAX_SIZE = 1280;
+    protected const THUMBNAIL_MAX_SIZE = 150;
 
     /**
      * Create a new job instance.
@@ -70,16 +76,19 @@ class ProcessUpload implements ShouldQueue
 
         // ステータス:処理開始
         $this->updateStatus(StatusType::ACTIVE->value, '処理開始');
-        
+
         // 格納用のランダム値を生成
         $uniqueId = uniqid();
 
         // 解凍先とストレージ先のパスを設定
         $extractedDir = self::TEMP_DIR . $uniqueId;
         $storagePhotoDir = self::UPLOAD_PHOTO_DIR . $uniqueId;
+        $storageThumbnailDir = self::UPLOAD_THUMBNAIL_DIR . $uniqueId;
         $stroageGpxDir = self::UPLOAD_GPX_DIR . $uniqueId;
 
         try {
+            // 一時的にメモリを拡張
+            ini_set('memory_limit', '1G');
 
             // ステータス:解凍中
             $this->updateStatus(StatusType::ACTIVE->value, '解凍中');
@@ -93,7 +102,7 @@ class ProcessUpload implements ShouldQueue
             $this->updateStatus(StatusType::ACTIVE->value, '画像保存中');
 
             // 各画像のアップロード処理開始
-            [$photoCount, $nonPhotoCount] = $this->startUploadPhotos($extractedDir, $storagePhotoDir);
+            [$photoCount, $nonPhotoCount] = $this->startUploadPhotos($extractedDir, $storagePhotoDir, $storageThumbnailDir);
 
             // photoGroupテーブルの更新
             $this->photoGroupRepository->updateCounts($this->photoGroupId, $photoCount, $nonPhotoCount);
@@ -124,7 +133,7 @@ class ProcessUpload implements ShouldQueue
             Log::error('ProcessUploadにてエラーが発生しました。： ' . $e->getMessage());
         } finally {
             // Tempディレクトリ内を削除
-            $this->cleanup($extractedDir);
+            // $this->cleanup($extractedDir);
         }
     }
 
@@ -144,7 +153,7 @@ class ProcessUpload implements ShouldQueue
         return true;
     }
 
-    private function startUploadPhotos($extractedDir, $storagePhotoDir): array
+    private function startUploadPhotos($extractedDir, $storagePhotoDir, $storageThumbnailDir): array
     {
         // 解凍ディレクトリ内の全ファイルを取得
         $files = Storage::allFiles($extractedDir);
@@ -159,7 +168,7 @@ class ProcessUpload implements ShouldQueue
             if ($this->isPhoto($extension)) {
                 $photoCount++;
                 // ストレージへアップロード開始
-                $this->uploadPhoto($file, $storagePhotoDir);
+                $this->uploadPhoto($file, $storagePhotoDir, $storageThumbnailDir);
             } else {
                 $nonPhotoCount++;
             }
@@ -168,23 +177,37 @@ class ProcessUpload implements ShouldQueue
         return [$photoCount, $nonPhotoCount];
     }
 
-    private function uploadPhoto($file, $storagePhotoDir): void
+    private function uploadPhoto($file, $storagePhotoDir, $storageThumbnailDir): void
     {
         $relativeFilePath = Storage::path($file);
         $fileName = basename($file);
-        $storagePath = $storagePhotoDir . '/' . $fileName;
 
-        // exif情報を取得
-        $exifData = @exif_read_data($relativeFilePath);
-        
-        // 撮影日時を取得
-        $takenAt = isset($exifData['DateTimeOriginal']) ? date('Y-m-d H:i:s', strtotime($exifData['DateTimeOriginal'])) : null;
+        try {
+            // exif情報を取得
+            $exifData = @exif_read_data($relativeFilePath);
 
-        // MinIOにアップロード
-        Storage::disk('s3')->put($storagePath, file_get_contents($relativeFilePath));
+            // 撮影日時を取得
+            $takenAt = isset($exifData['DateTimeOriginal']) ? date('Y-m-d H:i:s', strtotime($exifData['DateTimeOriginal'])) : null;
 
-        // アップロードが完了したら、DBに情報を登録する。
-        $this->photoRepository->create($this->userId, $this->photoGroupId, $fileName, $storagePhotoDir, $takenAt);
+            $manager = new ImageManager(new Driver());
+
+            // 元画像のアップロード
+            $original = $manager->read($relativeFilePath)->scaleDown(self::ORIGINAL_MAX_SIZE, self::ORIGINAL_MAX_SIZE);
+            $storagePath = $storagePhotoDir . '/' . $fileName;
+            Storage::disk('s3')->put($storagePath, $original->encode());
+    
+            // サムネイル画像のアップロード
+            $thumbnail = $manager->read($relativeFilePath)->scaleDown(self::THUMBNAIL_MAX_SIZE, self::THUMBNAIL_MAX_SIZE);
+            $thumbnailPath = $storageThumbnailDir . '/' . $fileName;
+            Storage::disk('s3')->put($thumbnailPath, $thumbnail->encode());
+    
+            // アップロードが完了したら、DBに情報を登録する。
+            $this->photoRepository->create($this->userId, $this->photoGroupId, $fileName, $storagePhotoDir, $storageThumbnailDir, $takenAt);
+        }
+        catch (Exception $e) {
+            // ステータス:エラー発生
+            Log::error('画像ファイルを保存出来ませんでした。ファイル名： '. $fileName . ' エラー内容： ' . $e->getMessage());
+        }
     }
 
     private function isPhoto(string $extension): bool
@@ -192,7 +215,8 @@ class ProcessUpload implements ShouldQueue
         return in_array($extension, self::PHOTO_EXTENSIONS);
     }
 
-    private function uploadGpx($stroageGpxDir): int {
+    private function uploadGpx($stroageGpxDir): int
+    {
         $relativeFilePath = Storage::path($this->gpxFilePath);
         $fileName = basename($this->gpxFilePath);
         $storagePath = $stroageGpxDir . '/' . $fileName;
@@ -202,10 +226,11 @@ class ProcessUpload implements ShouldQueue
         return $this->gpxRepository->create($this->userId, $fileName, $stroageGpxDir)->id;
     }
 
-    private function parseGpxFile(): array {
+    private function parseGpxFile(): array
+    {
         $xml = simplexml_load_file(Storage::path($this->gpxFilePath));
         $tracks = [];
-        foreach ($xml->trk->trkseg->trkpt as $trkpt) { 
+        foreach ($xml->trk->trkseg->trkpt as $trkpt) {
             $tracks[] = [
                 'lat' => (float) $trkpt['lat'],
                 'lon' => (float) $trkpt['lon'],
@@ -215,7 +240,8 @@ class ProcessUpload implements ShouldQueue
         return $tracks;
     }
 
-    private function associatePhotoAndGpx($gpxId, $tracks) {
+    private function associatePhotoAndGpx($gpxId, $tracks)
+    {
         // 登録した画像を全て取得
         $photos = $this->photoRepository->findByPhotoGroupId($this->photoGroupId);
 
@@ -233,14 +259,14 @@ class ProcessUpload implements ShouldQueue
         }
     }
 
-    private function findClosestTrack($takenAt, $tracks) {
+    private function findClosestTrack($takenAt, $tracks)
+    {
         $closestTrack = null;
         $minDiff = PHP_INT_MAX;
 
         foreach ($tracks as $track) {
-            Log::debug($track['time']);
             $trackTime = new DateTime($track['time']);
-            
+
             $diff = abs($trackTime->getTimestamp() - $takenAt->getTimestamp());
             // 許容時間を超えた場合は対象外とする
             if ($diff > self::MAX_ALLOWED_DIFF) {

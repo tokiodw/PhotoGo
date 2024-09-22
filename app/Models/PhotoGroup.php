@@ -17,4 +17,8 @@ class PhotoGroup extends Model
         'photo_count',
         'non_photo_count',
     ];
+
+    public function photos(){
+        return $this->hasMany(Photo::class);
+    }
 }

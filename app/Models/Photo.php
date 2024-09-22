@@ -14,7 +14,12 @@ class Photo extends Model
         'photo_group_id',
         'original_name',
         'storage_dir',
+        'thumbnail_dir',
         'taken_at',
     ];
+
+    public function location() {
+        return $this->hasOne(PhotoLocation::class);
+    }
     
 }
