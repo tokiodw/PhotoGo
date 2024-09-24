@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->foreignId('photo_group_id');
+            $table->string('original_name');
             $table->string('storage_dir');
             $table->string('thumbnail_dir');
             $table->dateTime('taken_at');
